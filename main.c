@@ -13,6 +13,7 @@ float** mulmr(float c, float** mat, int n);
 
 char** setVertexes(int n);
 int* setCoordsX(int n);
+int* setCoordsY(int n);
 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -80,11 +81,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             hdc = BeginPaint(hWnd, &ps);
             char **nn;
             int *nx;
+            int *ny;
             nn = setVertexes(10);
-            nx = setCoordsX(13);
-//            for (int i = 0; i < 8; i++) { // test for setCoordsX(n)
-//                printf("%d\n", nx[i]);
-//            }
+            nx = setCoordsX(10);
+            ny = setCoordsY(10);
+
 
             EndPaint(hWnd, &ps);
             break;
@@ -156,4 +157,33 @@ int* setCoordsX(int n) {
         }
     }
     return nx;
+}
+
+int* setCoordsY(int n) {
+    int *ny = malloc(n * sizeof(int));
+    int vertSide = 2;
+    int horizontalSide = (int) ceilf((float) n/2 - vertSide);
+    if (horizontalSide > 1) {
+        for (int i = 0; i < horizontalSide; i++) {
+            ny[i] = 100;
+        }
+        for (int i = horizontalSide; i < horizontalSide + vertSide; i++) {
+            ny[i] = ny[i-1] + 100;
+        }
+        for (int i = horizontalSide+vertSide; i < 2*horizontalSide + vertSide; i++) {
+            ny[i] = ny[horizontalSide-1] + 300;
+        }
+        for (int i = 2*horizontalSide + vertSide; i < n; i ++) {
+            ny[i] = ny[i-1] - 100;
+        }
+    } else {
+        int side = (int) ceilf((float)n/2);
+        for (int i = 0; i < side; i++) {
+            ny[i] = 100;
+        }
+        for (int i = side; i < n; i++) {
+            ny[i] = 200;
+        }
+    }
+    return ny;
 }
