@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <windows.h>
 #include <math.h>
 
-int n1 = 2;
-int n2 = 1;
-int n3 = 0;
-int n4 = 2;
+const int n1 = 2;
+const int n2 = 1;
+const int n3 = 0;
+const int n4 = 2;
+const int N = 10;
 
 float** randm(int n);
 float** mulmr(float c, float** mat, int n);
@@ -14,6 +16,10 @@ float** mulmr(float c, float** mat, int n);
 char** setVertexes(int n);
 int* setCoordsX(int n);
 int* setCoordsY(int n);
+
+int mod(int x1, int x2);
+
+void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny);
 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -82,10 +88,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             char **nn;
             int *nx;
             int *ny;
-            nn = setVertexes(10);
-            nx = setCoordsX(10);
-            ny = setCoordsY(10);
 
+            drawOrientedGraph(hdc, N, nn, nx, ny);
 
             EndPaint(hWnd, &ps);
             break;
@@ -186,4 +190,63 @@ int* setCoordsY(int n) {
         }
     }
     return ny;
+}
+
+int mod(int x1, int x2) {
+    int res = x1 - x2;
+    if (res > 0) return res;
+    else return (-1)*res;
+}
+
+void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
+    int vertSide = 2;
+    int horizontalSide = (int) ceilf((float) n/2 - vertSide);
+    float** matrix;
+    matrix = randm(n);
+    matrix = mulmr((1.0 - n3*0.02 - n4*0.005 - 0.25), matrix, n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%.0f ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    nn = setVertexes(n);
+    nx = setCoordsX(n);
+    ny = setCoordsY(n);
+    int dx = 16, dy = 16, dtx = 5;
+
+    HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
+    HPEN KPen = CreatePen(PS_SOLID, 1, RGB(20, 20, 5));
+
+    SelectObject(hdc, KPen);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) {
+                int y1 = mod(nx[i], nx[j])/5;
+                Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
+            }
+            else if (matrix[i][j] == 1 && nx[i] != nx[j]) {
+                MoveToEx(hdc, nx[i], ny[i], NULL);
+                LineTo(hdc, nx[j], ny[j]);
+            } else if (matrix[i][j] == 1 && ny[i] != ny[j]) {
+                MoveToEx(hdc, nx[i], ny[i], NULL);
+                LineTo(hdc, nx[j], ny[j]);
+            }
+        }
+    }
+
+    SelectObject(hdc, BPen);
+
+    for (int i = 0; i < n; i++) {
+        Ellipse(hdc, nx[i]-dx,ny[i]-dy,nx[i]+dx,ny[i]+dy);
+        if (strlen(nn[i]) < 2) {
+            TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2, nn[i], 1);
+        } else {
+            TextOut(hdc, nx[i] - dtx-4, ny[i] - dy / 2, nn[i], 2);
+        }
+    }
+
 }
