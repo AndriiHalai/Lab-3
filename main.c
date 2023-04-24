@@ -224,14 +224,22 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) {
+            if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) { //horzntl arc
                 int y1 = mod(nx[i], nx[j])/5;
                 Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
             }
-            else if (matrix[i][j] == 1 && nx[i] != nx[j]) {
+            else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
                 MoveToEx(hdc, nx[i], ny[i], NULL);
                 LineTo(hdc, nx[j], ny[j]);
-            } else if (matrix[i][j] == 1 && ny[i] != ny[j]) {
+            } else if ((matrix[i][j] == 1) && (nx[i] == nx[j]) && (ny[i] != ny[j]) && (mod(ny[i],ny[j]) > 100)) { //vert arc
+                if (mod(i, j) > 4 && nx[j] != 100 && nx[i] != 100) { // draw line if it is not same side
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                } else { // arc if it is the same side
+                    int x1 = mod(ny[i], ny[j])/5;
+                    Arc(hdc, nx[i]-x1, ny[i], nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
+                }
+            } else if (matrix[i][j] == 1 && ny[i] != ny[j]) { // vert line
                 MoveToEx(hdc, nx[i], ny[i], NULL);
                 LineTo(hdc, nx[j], ny[j]);
             }
