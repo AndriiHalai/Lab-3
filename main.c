@@ -201,6 +201,9 @@ int mod(int x1, int x2) {
 void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
+    if (horizontalSide <= 1) {
+        horizontalSide = ceilf((float)n / 2);
+    }
     float** matrix;
     matrix = randm(n);
     matrix = mulmr((1.0 - n3*0.02 - n4*0.005 - 0.25), matrix, n);
@@ -229,8 +232,17 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                 Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
             }
             else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
-                MoveToEx(hdc, nx[i], ny[i], NULL);
-                LineTo(hdc, nx[j], ny[j]);
+                if ((i >= j) && matrix[j][i] == 1) {
+                    int xPoint = (nx[i] + nx[j]) / 2;
+                    int yPoint = ((ny[i] + ny[j]) / 2) - 15;
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, xPoint, yPoint);
+                    MoveToEx(hdc, xPoint, yPoint, NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                } else {
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                }
             } else if ((matrix[i][j] == 1) && (nx[i] == nx[j]) && (ny[i] != ny[j]) && (mod(ny[i],ny[j]) > 100)) { //vert arc
                 if (mod(i, j) > 4 && nx[j] != 100 && nx[i] != 100) { // draw line if it is not same side
                     MoveToEx(hdc, nx[i], ny[i], NULL);
@@ -240,8 +252,17 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     Arc(hdc, nx[i]-x1, ny[i], nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
                 }
             } else if (matrix[i][j] == 1 && ny[i] != ny[j]) { // vert line
-                MoveToEx(hdc, nx[i], ny[i], NULL);
-                LineTo(hdc, nx[j], ny[j]);
+                if ((i >= j) && matrix[j][i] == 1) {
+                    int xPoint = (nx[i] + nx[j]) / 2 + 15;
+                    int yPoint = ((ny[i] + ny[j]) / 2);
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, xPoint, yPoint);
+                    MoveToEx(hdc, xPoint, yPoint, NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                } else {
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                }
             }
         }
     }
