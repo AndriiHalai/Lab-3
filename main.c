@@ -10,6 +10,8 @@ const int n3 = 0;
 const int n4 = 2;
 const int N = 10;
 
+void arrow(HDC hdc, double fi, int px, int py);
+
 float** randm(int n);
 float** mulmr(float c, float** mat, int n);
 
@@ -69,19 +71,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
     HDC hdc;
     PAINTSTRUCT ps;
 
-    void arrow(float fi, int px,int py) {
-        fi = 3.1416*(180.0 - fi)/180.0;
-        int lx,ly,rx,ry;
-        lx = px+15*cos(fi+0.3);
-        rx = px+15*cos(fi-0.3);
-        ly = py+15*sin(fi+0.3);
-        ry = py+15*sin(fi-0.3);
-        MoveToEx(hdc, lx, ly, NULL);
-        LineTo(hdc, px, py);
-        LineTo(hdc, rx, ry);
-        return 0;
-    }
-
     switch(messg) {
         case WM_PAINT:
             hdc = BeginPaint(hWnd, &ps);
@@ -99,6 +88,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
         default:
             return(DefWindowProc(hWnd, messg, wParam, lParam));
     }
+}
+
+void arrow(HDC hdc, double fi, int px, int py) {
+    fi = 3.1415*(180.0 - fi)/180.0;
+    int lx,ly,rx,ry;
+    lx = ceil(px+15*cos(fi+0.3));
+    rx = ceil(px+15*cos(fi-0.3));
+    ly = ceil(py+15*sin(fi+0.3));
+    ry = ceil(py+15*sin(fi-0.3));
+    MoveToEx(hdc, lx, ly, NULL);
+    LineTo(hdc, px, py);
+    LineTo(hdc, rx, ry);
 }
 
 float** randm(int n) {
@@ -232,34 +233,62 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                 Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
             }
             else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
-                if ((i >= j) && matrix[j][i] == 1) {
+                if ((i >= j) && matrix[j][i] == 1) { //draw curve line
                     int xPoint = (nx[i] + nx[j]) / 2;
                     int yPoint = ((ny[i] + ny[j]) / 2) - 15;
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, xPoint, yPoint);
                     MoveToEx(hdc, xPoint, yPoint, NULL);
                     LineTo(hdc, nx[j], ny[j]);
-                } else {
+                } else { //draw straight line --
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
+                    if (ny[i] == ny[j]) { //arrow
+                        arrow(hdc, 0, nx[j]-dx, ny[j]);
+                    } else if (nx[i] < nx[j]) {
+                        if (ny[i] < ny[j]) {
+                            double hypot = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]-ny[i], 2));
+                            double leg = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]- ny[j], 2));
+                            double angle = acos(leg/hypot)*180/3.1415;
+                            int y1 = ceil(16*sin(angle* (3.1415 / 180)));
+                            int x1 = ceil(16*cos(angle* (3.1415 / 180)));
+                            arrow(hdc, -1*angle, nx[j]-x1, ny[j]-y1);
+                        } else if (ny[i] > ny[j]) {
+                            double hypot = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]-ny[i], 2));
+                            double leg = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]- ny[j], 2));
+                            double angle = acos(leg/hypot)*180/3.1415;
+                            int y1 = ceil(16*sin(angle* (3.1415 / 180)));
+                            int x1 = ceil(16*cos(angle* (3.1415 / 180)));
+                            arrow(hdc, angle, nx[j]-x1, ny[j]+y1);
+                        }
+                    }
                 }
             } else if ((matrix[i][j] == 1) && (nx[i] == nx[j]) && (ny[i] != ny[j]) && (mod(ny[i],ny[j]) > 100)) { //vert arc
                 if (mod(i, j) > 4 && nx[j] != 100 && nx[i] != 100) { // draw line if it is not same side
-                    MoveToEx(hdc, nx[i], ny[i], NULL);
-                    LineTo(hdc, nx[j], ny[j]);
+                    if ((i >= j) && matrix[j][i] == 1) { //draw curve line
+                        int xPoint = (nx[i] + nx[j]) / 2 + 15;
+                        int yPoint = ((ny[i] + ny[j]) / 2);
+                        MoveToEx(hdc, nx[i], ny[i], NULL);
+                        LineTo(hdc, xPoint, yPoint);
+                        MoveToEx(hdc, xPoint, yPoint, NULL);
+                        LineTo(hdc, nx[j], ny[j]);
+                    } else { //draw straight line
+                        MoveToEx(hdc, nx[i], ny[i], NULL);
+                        LineTo(hdc, nx[j], ny[j]);
+                    }
                 } else { // arc if it is the same side
                     int x1 = mod(ny[i], ny[j])/5;
                     Arc(hdc, nx[i]-x1, ny[i], nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
                 }
             } else if (matrix[i][j] == 1 && ny[i] != ny[j]) { // vert line
-                if ((i >= j) && matrix[j][i] == 1) {
+                if ((i >= j) && matrix[j][i] == 1) { //draw curve line
                     int xPoint = (nx[i] + nx[j]) / 2 + 15;
                     int yPoint = ((ny[i] + ny[j]) / 2);
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, xPoint, yPoint);
                     MoveToEx(hdc, xPoint, yPoint, NULL);
                     LineTo(hdc, nx[j], ny[j]);
-                } else {
+                } else { //draw straight line
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
                 }
