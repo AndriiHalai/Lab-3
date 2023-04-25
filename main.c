@@ -263,6 +263,10 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
                 }
+            } else if (matrix[i][j] == 1 && i == j) {
+                int x1 = 25;
+                int y1 = 2*x1;
+                Arc(hdc, nx[i]-x1, ny[i]-y1, nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
             }
         }
     }
@@ -277,5 +281,4 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
             TextOut(hdc, nx[i] - dtx-4, ny[i] - dy / 2, nn[i], 2);
         }
     }
-
 }
