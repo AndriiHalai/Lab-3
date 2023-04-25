@@ -8,7 +8,7 @@ const int n1 = 2;
 const int n2 = 1;
 const int n3 = 0;
 const int n4 = 2;
-const int N = 10;
+const int N = 12;
 
 void arrow(HDC hdc, double fi, int px, int py);
 
@@ -231,8 +231,7 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
             if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) { //horzntl arc
                 int y1 = mod(nx[i], nx[j])/5;
                 Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
-            }
-            else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
+            } else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
                 if ((i >= j) && matrix[j][i] == 1) { //draw curve line
                     int xPoint = (nx[i] + nx[j]) / 2;
                     int yPoint = ((ny[i] + ny[j]) / 2) - 15;
@@ -244,7 +243,9 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
                     if (ny[i] == ny[j]) { //arrow
-                        arrow(hdc, 0, nx[j]-dx, ny[j]);
+                        int direction = nx[i] - nx[j];
+                        if (direction < 0) arrow(hdc, 0, nx[j]-dx, ny[j]);
+                        else if (direction > 0) arrow(hdc, 180, nx[j]+dx, ny[j]);
                     } else if (nx[i] < nx[j]) {
                         if (ny[i] < ny[j]) {
                             double hypot = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]-ny[i], 2));
