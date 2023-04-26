@@ -8,7 +8,7 @@ const int n1 = 2;
 const int n2 = 1;
 const int n3 = 0;
 const int n4 = 2;
-const int N = 12;
+const int N = 10;
 
 void arrow(HDC hdc, double fi, int px, int py);
 
@@ -293,10 +293,11 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
                 }
-            } else if (matrix[i][j] == 1 && i == j) {
+            } else if (matrix[i][j] == 1 && i == j) { // loop
                 int x1 = 25;
                 int y1 = 2*x1;
                 Arc(hdc, nx[i]-x1, ny[i]-y1, nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
+                arrow(hdc, -50, nx[i]-dx+1, ny[i]-6);
             }
         }
     }
