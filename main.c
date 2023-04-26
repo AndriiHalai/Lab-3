@@ -312,6 +312,11 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     } else { //draw straight line
                         MoveToEx(hdc, nx[i], ny[i], NULL);
                         LineTo(hdc, nx[j], ny[j]);
+                        if (ny[i] < ny[j]) { //arrow for vert line
+                            arrow(hdc, -90, nx[j], ny[j]-dy);
+                        } else if (ny[i] > ny[j]) {
+                            arrow(hdc, 90, nx[j], ny[j]+dy);
+                        }
                     }
                 } else { // arc if it is the same side
                     int x1 = mod(ny[i], ny[j])/5;
@@ -328,6 +333,11 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                 } else { //draw straight line
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
+                    if (ny[i] < ny[j]) { //arrow for vert line
+                        arrow(hdc, -90, nx[j], ny[j]-dy);
+                    } else if (ny[i] > ny[j]) {
+                        arrow(hdc, 90, nx[j], ny[j]+dy);
+                    }
                 }
             } else if (matrix[i][j] == 1 && i == j) { // loop
                 int x1 = 25;
