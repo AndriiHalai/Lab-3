@@ -8,7 +8,7 @@ const int n1 = 2;
 const int n2 = 1;
 const int n3 = 0;
 const int n4 = 2;
-const int N = 10;
+const int N = 12;
 
 void arrow(HDC hdc, double fi, int px, int py);
 
@@ -309,6 +309,21 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                         LineTo(hdc, xPoint, yPoint);
                         MoveToEx(hdc, xPoint, yPoint, NULL);
                         LineTo(hdc, nx[j], ny[j]);
+                        if (ny[i] > ny[j]) { //arrow for vert curve line
+                            double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                            double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                            double angle = acos(leg/hypot)*180/3.1415;
+                            int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                            int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                            arrow(hdc, angle+90, nx[j]+y1, ny[j]+x1);
+                        } else if (ny[i] < ny[j]) {
+                            double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                            double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                            double angle = acos(leg/hypot)*180/3.1415;
+                            int y1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                            int x1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                            arrow(hdc, -1*angle-90, nx[j]+x1, ny[j]-y1);
+                        }
                     } else { //draw straight line
                         MoveToEx(hdc, nx[i], ny[i], NULL);
                         LineTo(hdc, nx[j], ny[j]);
@@ -330,6 +345,21 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     LineTo(hdc, xPoint, yPoint);
                     MoveToEx(hdc, xPoint, yPoint, NULL);
                     LineTo(hdc, nx[j], ny[j]);
+                    if (ny[i] > ny[j]) { //arrow for vert curve line
+                        double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                        double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                        double angle = acos(leg/hypot)*180/3.1415;
+                        int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                        arrow(hdc, angle+90, nx[j]+y1, ny[j]+x1);
+                    } else if (ny[i] < ny[j]) {
+                        double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                        double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                        double angle = acos(leg/hypot)*180/3.1415;
+                        int y1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        arrow(hdc, -1*angle-90, nx[j]+x1, ny[j]-y1);
+                    }
                 } else { //draw straight line
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, nx[j], ny[j]);
