@@ -8,7 +8,7 @@ const int n1 = 2;
 const int n2 = 1;
 const int n3 = 0;
 const int n4 = 2;
-const int N = 12;
+const int N = 5;
 
 void arrow(HDC hdc, double fi, int px, int py);
 
@@ -243,8 +243,8 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                     double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
                     double leg = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]- ny[j], 2));
                     double angle = acos(leg/hypot)*180/3.1415;
-                    int y1 = ceil(16*sin(angle* (3.1415 / 180)));
-                    int x1 = ceil(16*cos(angle* (3.1415 / 180)));
+                    int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                    int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
 
                     if (yPoint < ny[j] && xPoint < nx[j]) {
                         arrow(hdc, -1*angle, nx[j]-x1, ny[j]-y1);
@@ -258,18 +258,30 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                         int direction = nx[i] - nx[j];
                         if (direction < 0) arrow(hdc, 0, nx[j]-dx, ny[j]);
                         else if (direction > 0) arrow(hdc, 180, nx[j]+dx, ny[j]);
-                    } else if (nx[i] < nx[j]) {
+                    } else if ((nx[i] - nx[j]) < 0) { // arrow between levels from left to right
 
                         double hypot = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]-ny[i], 2));
                         double leg = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]- ny[j], 2));
                         double angle = acos(leg/hypot)*180/3.1415;
-                        int y1 = ceil(16*sin(angle* (3.1415 / 180)));
-                        int x1 = ceil(16*cos(angle* (3.1415 / 180)));
+                        int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
 
                         if (ny[i] < ny[j]) {
                             arrow(hdc, -1*angle, nx[j]-x1, ny[j]-y1);
                         } else if (ny[i] > ny[j]) {
                             arrow(hdc, angle, nx[j]-x1, ny[j]+y1);
+                        }
+                    } else if ((nx[i] - nx[j]) > 0) { // arrow between levels from right to left
+                        double hypot = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]-ny[i], 2));
+                        double leg = sqrt(pow(nx[j]-nx[i], 2) + pow(ny[j]- ny[j], 2));
+                        double angle = acos(leg/hypot)*180/3.1415;
+                        int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+
+                        if (ny[i] < ny[j]) {
+                            arrow(hdc, angle+180, nx[j]+x1, ny[j]-y1);
+                        } else if (ny[i] > ny[j]) {
+                            arrow(hdc, -1*angle+180, nx[j]+x1, ny[j]+y1);
                         }
                     }
                 }
