@@ -21,7 +21,8 @@ int* setCoordsY(int n, int start);
 
 int mod(int x1, int x2);
 
-void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny);
+void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
+void drawGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -78,7 +79,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             int *nx;
             int *ny;
 
-            drawOrientedGraph(hdc, N, nn, nx, ny);
+            printf("Oriented graph:\n");
+            drawOrientedGraph(hdc, N, nn, nx, ny, 100);
+            printf("\n");
+            printf("Undirected graph:\n");
+            drawGraph(hdc, N, nn, nx, ny, 600);
 
             EndPaint(hWnd, &ps);
             break;
@@ -135,7 +140,6 @@ char** setVertexes(int n) {
 }
 
 int* setCoordsX(int n, int start) {
-    int startX = start;
     int *nx = malloc(n * sizeof(int));
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
@@ -200,7 +204,7 @@ int mod(int x1, int x2) {
     else return (-1)*res;
 }
 
-void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
+void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
     if (horizontalSide <= 1) {
@@ -218,8 +222,8 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
     }
 
     nn = setVertexes(n);
-    nx = setCoordsX(n, 100);
-    ny = setCoordsY(n, 100);
+    nx = setCoordsX(n, start);
+    ny = setCoordsY(n, start);
     int dx = 16, dy = 16, dtx = 5;
 
     HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
@@ -400,6 +404,88 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                 int y1 = 2*x1;
                 Arc(hdc, nx[i]-x1, ny[i]-y1, nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
                 arrow(hdc, -50, nx[i]-dx+1, ny[i]-6);
+            }
+        }
+    }
+
+    SelectObject(hdc, BPen);
+
+    for (int i = 0; i < n; i++) {
+        Ellipse(hdc, nx[i]-dx,ny[i]-dy,nx[i]+dx,ny[i]+dy);
+        if (strlen(nn[i]) < 2) {
+            TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2, nn[i], 1);
+        } else {
+            TextOut(hdc, nx[i] - dtx-4, ny[i] - dy / 2, nn[i], 2);
+        }
+    }
+}
+
+void drawGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
+    int vertSide = 2;
+    int horizontalSide = (int) ceilf((float) n/2 - vertSide);
+    if (horizontalSide <= 1) {
+        horizontalSide = ceilf((float)n / 2);
+    }
+    float** matrix;
+    matrix = randm(n);
+    matrix = mulmr((1.0 - n3*0.02 - n4*0.005 - 0.25), matrix, n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (matrix[i][j] == 1) {
+                matrix[j][i] = 1;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%.0f ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    nn = setVertexes(n);
+    nx = setCoordsX(n, start);
+    ny = setCoordsY(n, 100);
+    int dx = 16, dy = 16, dtx = 5;
+
+    HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
+    HPEN KPen = CreatePen(PS_SOLID, 1, RGB(20, 20, 5));
+
+    SelectObject(hdc, KPen);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) { //horzntl arc
+                int xPoint = (nx[i] + nx[j]) / 2;
+                int yPoint = ((ny[i] + ny[j]) / 2) + 40;
+                MoveToEx(hdc, nx[i], ny[i], NULL);
+                LineTo(hdc, xPoint, yPoint);
+                MoveToEx(hdc, xPoint, yPoint, NULL);
+                LineTo(hdc, nx[j], ny[j]);
+            } else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
+                MoveToEx(hdc, nx[i], ny[i], NULL);
+                LineTo(hdc, nx[j], ny[j]);
+            } else if ((matrix[i][j] == 1) && (nx[i] == nx[j]) && (ny[i] != ny[j]) && (mod(ny[i],ny[j]) > 100)) { //vert arc
+                if (mod(i, j) > 4 && nx[j] != start && nx[i] != 100) { // draw line if it is not same side
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                } else { // arc if it is the same side
+                    int xPoint = (nx[i] + nx[j]) / 2 + 40;
+                    int yPoint = ((ny[i] + ny[j]) / 2);
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, xPoint, yPoint);
+                    MoveToEx(hdc, xPoint, yPoint, NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                }
+            } else if (matrix[i][j] == 1 && ny[i] != ny[j]) { // vert line
+                MoveToEx(hdc, nx[i], ny[i], NULL);
+                LineTo(hdc, nx[j], ny[j]);
+            } else if (matrix[i][j] == 1 && i == j) { // loop
+                int x1 = 25;
+                int y1 = 2*x1;
+                Arc(hdc, nx[i]-x1, ny[i]-y1, nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
             }
         }
     }
