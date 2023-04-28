@@ -8,7 +8,7 @@ const int n1 = 2;
 const int n2 = 1;
 const int n3 = 0;
 const int n4 = 2;
-const int N = 12;
+const int N = 10;
 
 void arrow(HDC hdc, double fi, int px, int py);
 
@@ -229,12 +229,37 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if ((matrix[i][j] == 1) && (ny[i] == ny[j]) && (mod(i,j) < horizontalSide) && (mod(nx[i], nx[j]) > 100)) { //horzntl arc
-                int y1 = mod(nx[i], nx[j])/5;
-                Arc(hdc, nx[i], ny[i]-y1, nx[j], ny[i]+y1, nx[i], ny[i], nx[j], ny[j]);
+                if ((nx[i] - nx[j]) < 0) {
+                    int xPoint = (nx[i] + nx[j]) / 2;
+                    int yPoint = ((ny[i] + ny[j]) / 2) + 40;
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, xPoint, yPoint);
+                    MoveToEx(hdc, xPoint, yPoint, NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                    double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                    double leg = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]- ny[j], 2));
+                    double angle = acos(leg/hypot)*180/3.1415;
+                    int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                    int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                    arrow(hdc, angle, nx[j]-x1, ny[j]+y1);
+                } else if((nx[i] - nx[j]) > 0) {
+                    int xPoint = (nx[i] + nx[j]) / 2;
+                    int yPoint = ((ny[i] + ny[j]) / 2) - 40;
+                    MoveToEx(hdc, nx[i], ny[i], NULL);
+                    LineTo(hdc, xPoint, yPoint);
+                    MoveToEx(hdc, xPoint, yPoint, NULL);
+                    LineTo(hdc, nx[j], ny[j]);
+                    double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                    double leg = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]- ny[j], 2));
+                    double angle = acos(leg/hypot)*180/3.1415;
+                    int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                    int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                    arrow(hdc, angle+180, nx[j]+x1, ny[j]-y1);
+                }
             } else if (matrix[i][j] == 1 && nx[i] != nx[j]) { // horzntl line
                 if ((i >= j) && matrix[j][i] == 1) { //draw curve line
                     int xPoint = (nx[i] + nx[j]) / 2;
-                    int yPoint = ((ny[i] + ny[j]) / 2) - 15;
+                    int yPoint = ((ny[i] + ny[j]) / 2) - 30;
                     MoveToEx(hdc, nx[i], ny[i], NULL);
                     LineTo(hdc, xPoint, yPoint);
                     MoveToEx(hdc, xPoint, yPoint, NULL);
