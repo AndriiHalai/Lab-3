@@ -359,8 +359,33 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
                         }
                     }
                 } else { // arc if it is the same side
-                    int x1 = mod(ny[i], ny[j])/5;
-                    Arc(hdc, nx[i]-x1, ny[i], nx[j]+x1, ny[j], nx[i], ny[i], nx[j], ny[j]);
+                    if (ny[i] < ny[j]) {
+                        int xPoint = (nx[i] + nx[j]) / 2 + 40;
+                        int yPoint = ((ny[i] + ny[j]) / 2);
+                        MoveToEx(hdc, nx[i], ny[i], NULL);
+                        LineTo(hdc, xPoint, yPoint);
+                        MoveToEx(hdc, xPoint, yPoint, NULL);
+                        LineTo(hdc, nx[j], ny[j]);
+                        double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                        double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                        double angle = acos(leg/hypot)*180/3.1415;
+                        int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                        arrow(hdc, -90-angle, nx[j]+y1, ny[j]-x1);
+                    } else if (ny[i] > ny[j]) {
+                        int xPoint = (nx[i] + nx[j]) / 2 - 40;
+                        int yPoint = ((ny[i] + ny[j]) / 2);
+                        MoveToEx(hdc, nx[i], ny[i], NULL);
+                        LineTo(hdc, xPoint, yPoint);
+                        MoveToEx(hdc, xPoint, yPoint, NULL);
+                        LineTo(hdc, nx[j], ny[j]);
+                        double hypot = sqrt(pow(nx[j]-xPoint, 2) + pow(ny[j]-yPoint, 2));
+                        double leg = sqrt(pow(nx[j]-nx[j], 2) + pow(ny[j]-yPoint, 2));
+                        double angle = acos(leg/hypot)*180/3.1415;
+                        int y1 = ceil(dx*sin(angle* (3.1415 / 180)));
+                        int x1 = ceil(dx*cos(angle* (3.1415 / 180)));
+                        arrow(hdc, 90-angle, nx[j]-y1, ny[j]+x1);
+                    }
                 }
             } else if (matrix[i][j] == 1 && ny[i] != ny[j]) { // vert line
                 if ((i >= j) && matrix[j][i] == 1) { //draw curve line
