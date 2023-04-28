@@ -16,8 +16,8 @@ float** randm(int n);
 float** mulmr(float c, float** mat, int n);
 
 char** setVertexes(int n);
-int* setCoordsX(int n);
-int* setCoordsY(int n);
+int* setCoordsX(int n, int start);
+int* setCoordsY(int n, int start);
 
 int mod(int x1, int x2);
 
@@ -134,13 +134,14 @@ char** setVertexes(int n) {
     return arr;
 }
 
-int* setCoordsX(int n) {
+int* setCoordsX(int n, int start) {
+    int startX = start;
     int *nx = malloc(n * sizeof(int));
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
     if (horizontalSide > 1) {
         for (int i = 0; i < horizontalSide; i++) {
-            nx[i] = 100 + i*100;
+            nx[i] = start + i*100;
         }
         for (int i = horizontalSide; i < horizontalSide + vertSide; i++) {
             nx[i] = nx[i-1];
@@ -155,7 +156,7 @@ int* setCoordsX(int n) {
     } else {
         int side = (int) ceilf((float)n/2);
         for (int i = 0; i < side; i++) {
-            nx[i] = 100 + i*100;
+            nx[i] = start + i*100;
         }
         for (int i = 1; i < n-side+1; i++) {
             nx[side+i-1] = nx[side - i];
@@ -164,13 +165,13 @@ int* setCoordsX(int n) {
     return nx;
 }
 
-int* setCoordsY(int n) {
+int* setCoordsY(int n, int start) {
     int *ny = malloc(n * sizeof(int));
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
     if (horizontalSide > 1) {
         for (int i = 0; i < horizontalSide; i++) {
-            ny[i] = 100;
+            ny[i] = start;
         }
         for (int i = horizontalSide; i < horizontalSide + vertSide; i++) {
             ny[i] = ny[i-1] + 100;
@@ -184,10 +185,10 @@ int* setCoordsY(int n) {
     } else {
         int side = (int) ceilf((float)n/2);
         for (int i = 0; i < side; i++) {
-            ny[i] = 100;
+            ny[i] = start;
         }
         for (int i = side; i < n; i++) {
-            ny[i] = 200;
+            ny[i] = start+100;
         }
     }
     return ny;
@@ -217,8 +218,8 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny) {
     }
 
     nn = setVertexes(n);
-    nx = setCoordsX(n);
-    ny = setCoordsY(n);
+    nx = setCoordsX(n, 100);
+    ny = setCoordsY(n, 100);
     int dx = 16, dy = 16, dtx = 5;
 
     HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
