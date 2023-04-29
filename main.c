@@ -21,8 +21,8 @@ int* setCoordsY(int n, int start);
 
 int mod(int x1, int x2);
 
-void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
-void drawGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
+void drawDirectedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
+void drawUndirectedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start);
 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -79,11 +79,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             int *nx;
             int *ny;
 
-            printf("Oriented graph:\n");
-            drawOrientedGraph(hdc, N, nn, nx, ny, 100);
+            printf("Directed graph:\n");
+            drawDirectedGraph(hdc, N, nn, nx, ny, 100);
             printf("\n");
             printf("Undirected graph:\n");
-            drawGraph(hdc, N, nn, nx, ny, 600);
+            drawUndirectedGraph(hdc, N, nn, nx, ny, 600);
 
             EndPaint(hWnd, &ps);
             break;
@@ -204,7 +204,7 @@ int mod(int x1, int x2) {
     else return (-1)*res;
 }
 
-void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
+void drawDirectedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
     if (horizontalSide <= 1) {
@@ -420,7 +420,7 @@ void drawOrientedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
     }
 }
 
-void drawGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
+void drawUndirectedGraph(HDC hdc, int n, char **nn, int *nx, int *ny, int start) {
     int vertSide = 2;
     int horizontalSide = (int) ceilf((float) n/2 - vertSide);
     if (horizontalSide <= 1) {
